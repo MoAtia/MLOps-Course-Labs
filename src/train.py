@@ -127,7 +127,7 @@ def train(X_train, y_train):
     Returns:
         LogisticRegression: trained logistic regression model
     """
-    model = SVC(kernel="rbf")
+    model = RandomForestClassifier(n_estimators=100)
     model.fit(X_train, y_train)
 
     ### Log the model with the input and output schema
@@ -139,8 +139,8 @@ def train(X_train, y_train):
     # Log model
     mlflow.sklearn.log_model(
         sk_model=model,
-        artifact_path="support_vector_classifier_model",
-        registered_model_name="SVC_model",
+        artifact_path="random_forest_model",
+        registered_model_name="RandomForestClassifier",
         input_example=X_train.iloc[0:1],
         signature=signature,
     )
@@ -162,7 +162,7 @@ def main():
 
 
     ### Start a new run and leave all the main function code as part of the experiment
-    with mlflow.start_run(run_name="Support Vector Classifier With RBF Kernel"):
+    with mlflow.start_run(run_name="random_forest_model"):
         ### Log the run ID
         run_id = mlflow.active_run().info.run_id
         print(f"Run ID: {run_id}")
@@ -172,7 +172,7 @@ def main():
         col_transf, X_train, X_test, y_train, y_test = preprocess(df)
 
         ### Log the max_iter parameter
-        mlflow.log_param("kernel", "RBF")
+        mlflow.log_param("n_estimators", "100")
 
 
         model = train(X_train, y_train)
@@ -188,7 +188,8 @@ def main():
 
 
         ### Log tag
-        mlflow.set_tag("SVC_model", "RBF")
+        mlflow.set_tag("estimators", "100 trees")
+        mlflow.set_tag("model_type", "Random Forest")
 
 
         
