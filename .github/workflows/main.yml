@@ -94,6 +94,10 @@ jobs:
       run: |
         echo "Image URI: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
 
+
+
+
+
   deploy:
     runs-on: ubuntu-latest
 
@@ -106,12 +110,19 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
+
+      - name: Write SSH private key to file
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+
       - name: Deploy app to EC2
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+          
             # Pull latest image from ECR
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
               docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
