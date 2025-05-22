@@ -117,13 +117,15 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
           chmod 600 ec2_key.pem
 
+
+
       - name: Deploy app to EC2
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 
         run: |
           ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-
+          echo "✅ Logged into EC2"
 
             # Pull latest image from ECR
             docker build -pull -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
@@ -137,4 +139,16 @@ jobs:
             # docker compose down --remove-orphans || true
             # docker compose pull
             # docker compose up -d
+
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin 060795916912.dkr.ecr.us-east-1.amazonaws.com
+
+          # Pull image
+          docker pull 060795916912.dkr.ecr.us-east-1.amazonaws.com/:c27e94500ecdbaea5cb0d6780a5186c558ad38f4
+
+          # Stop and remove existing container (if exists)
+          docker rm -f my-app || true
+
+          # Run the container
+          docker run -d --name my-app -p 80:80 060795916912.dkr.ecr.us-east-1.amazonaws.com/:c27e94500ecdbaea5cb0d6780a5186c558ad38f4
+
           EOF
