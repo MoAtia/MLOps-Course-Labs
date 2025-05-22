@@ -7,7 +7,6 @@ env:
   AWS_REGION: us-east-1  # Change to your region
   ECR_REPOSITORY: your-ecr-repo-name
   CONTAINER_NAME: your-container-name
-  AWS_REGION: us-east-1  # Change to your region
 
 
 jobs:
