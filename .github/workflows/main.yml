@@ -98,6 +98,7 @@ jobs:
 
 
 
+
   deploy:
     runs-on: ubuntu-latest
 
@@ -121,14 +122,15 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 
         run: |
-          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
-          
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+
+
             # Pull latest image from ECR
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
               docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
             # Navigate to your app directory
-            cd /home/ec2-user/app
+            cd /home/ubuntu/app
 
             # Pull updated images (if using prebuilt image) and deploy
             docker-compose pull
