@@ -80,7 +80,7 @@ jobs:
           docker pull 060795916912.dkr.ecr.us-east-1.amazonaws.com/:c27e94500ecdbaea5cb0d6780a5186c558ad38f4
           echo "✅ Pulled image from ECR"
 
-          docker rm -f my-app || true
+          # docker rm -f my-app || true
 
           docker run -d --name my-app -p 443:8000 060795916912.dkr.ecr.us-east-1.amazonaws.com/:c27e94500ecdbaea5cb0d6780a5186c558ad38f4
         EOF
