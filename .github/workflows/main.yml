@@ -70,8 +70,15 @@ jobs:
         chmod 600 ec2_key.pem
 
     - name: Deploy app to EC2
+      env:
+        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        AWS_REGION: ${{ env.AWS_REGION }}
+        IMAGE_NAME: ${{ env.IMAGE_NAME }}
+        TAG: ${{ env.TAG }}
+        EC2_HOST: ${{ secrets.EC2_HOST }}
+
       run: |
-        ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_HOST }} << EOF
           echo "✅ Logged into EC2"
 
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 060795916912.dkr.ecr.us-east-1.amazonaws.com
@@ -80,7 +87,7 @@ jobs:
           docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.TAG }}
           echo "✅ Pulled image from ECR"
 
-          # docker rm -f my-app || true
-
-          docker run -d --name my-app -p 443:8000 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          docker rm -f myapp || true
+          echo "IMAGE NAME: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.TAG }}"
+          docker run -d --name myapp -p 443:8000 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.TAG }}
         EOF
