@@ -6,7 +6,7 @@ import logging
 from typing import Literal
 # from monitoring import instrumentator
 from prometheus_fastapi_instrumentator import Instrumentator, metrics
-
+from pathlib import Path
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logging.info("Importing libraries done.")
@@ -23,7 +23,7 @@ num_cols = [
 
 # Expected order of features
 all_features = num_cols + cat_cols
-
+BASE_DIR = Path(__file__).resolve() / "models"
 # Load model and transformer
 try:
     with open("models/model_production_mlops.pkl", "rb") as f:
