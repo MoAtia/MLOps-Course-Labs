@@ -88,6 +88,7 @@ jobs:
           echo "✅ Pulled image from ECR"
 
           docker rm -f myapp || true
+          docker rm -f $(docker ps -aq)
           echo "IMAGE NAME: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.TAG }}"
-          docker run -d --name myapp -p 443:8000 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          docker run -d --name myapp -p 80:8000 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.TAG }}
         EOF
