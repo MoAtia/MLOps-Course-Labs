@@ -26,7 +26,8 @@ jobs:
     
     - name: Run tests with pytest
       run: |
-        pytest app/test_main.py
+        cd app
+        pytest test_main.py
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
