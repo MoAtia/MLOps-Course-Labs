@@ -3,6 +3,12 @@ name: Python CI
 on:
   push:
     branches: [ main ]
+env:
+  AWS_REGION: us-east-1  # Change to your region
+  ECR_REPOSITORY: your-ecr-repo-name
+  CONTAINER_NAME: your-container-name
+  AWS_REGION: us-east-1  # Change to your region
+
 
 jobs:
   test:
@@ -32,3 +38,43 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       if: success()  # Only upload if tests pass
+
+
+  Build-image-and-push-to-ECR:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+        build-args: |
+          PYTHON_VERSION=3.12
+
+    - name: Output image URI
+      run: |
+        echo "Image URI: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
