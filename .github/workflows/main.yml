@@ -79,24 +79,10 @@ jobs:
         docker push $ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}
         echo "ECR_IMAGE=$ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}" >> $GITHUB_ENV
 
-    # - name: Build Docker image
-    #   uses: docker/build-push-action@v5
-    #   with:
-    #     context: .
-    #     push: true
-    #     tags: |
-    #       ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
-    #       ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:Atia
-    #     build-args: |
-    #       PYTHON_VERSION=3.12
 
-    - name: Output image URI
-      run: |
-        echo "Image URI: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
-
-
-
-
+    # - name: Output image URI
+    #   run: |
+    #     echo "Image URI: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
 
 
   deploy:
@@ -127,23 +113,13 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
           echo "✅ Logged into EC2"
 
-            # Pull latest image from ECR
-            docker build -pull -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
-            # Navigate to your app directory
-            # mkdir -p /home/ubuntu/app
-            # cd /home/ubuntu/app
-
-            # Pull updated images (if using prebuilt image) and deploy
-            # Deploy
-            # docker compose down --remove-orphans || true
-            # docker compose pull
-            # docker compose up -d
-
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin 060795916912.dkr.ecr.us-east-1.amazonaws.com
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCESS_KEY_ID }}.dkr.ecr.us-east-1.amazonaws.com
           echo "✅ Logged into ECR"
+
+          
           # Pull image
-          docker pull 060795916912.dkr.ecr.us-east-1.amazonaws.com/:c27e94500ecdbaea5cb0d6780a5186c558ad38f4
+          docker pull $ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}
           echo "✅ Pulled image from ECR"
 
           # Stop and remove existing container (if exists)
