@@ -10,19 +10,16 @@ env:
 
 
 jobs:
-  test:
+  build and deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.12"]
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.12
     
     - name: Install dependencies
       run: |
@@ -43,13 +40,6 @@ jobs:
 
 
 
-  Build-image-and-push-to-ECR:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -85,47 +75,43 @@ jobs:
     #     echo "Image URI: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
 
 
-  deploy:
-    runs-on: ubuntu-latest
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up SSH key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+    - name: Set up SSH key
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
 
-      - name: Write SSH private key to file
-        run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
-          chmod 600 ec2_key.pem
+    - name: Write SSH private key to file
+      run: |
+        echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+        chmod 600 ec2_key.pem
 
 
 
-      - name: Deploy app to EC2
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    - name: Deploy app to EC2
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          echo "✅ Logged into EC2"
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+        echo "✅ Logged into EC2"
 
 
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCESS_KEY_ID }}.dkr.ecr.us-east-1.amazonaws.com
-          echo "✅ Logged into ECR"
+        aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCESS_KEY_ID }}.dkr.ecr.us-east-1.amazonaws.com
+        echo "✅ Logged into ECR"
 
-          
-          # Pull image
-          docker pull $ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}
-          echo "✅ Pulled image from ECR"
+        
+        # Pull image
+        docker pull $ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}
+        echo "✅ Pulled image from ECR"
 
-          # Stop and remove existing container (if exists)
-          # docker rm -f my-app || true
+        # Stop and remove existing container (if exists)
+        # docker rm -f my-app || true
 
-          # Run the container
-          docker run -d --name my-app -p 443:8000 060795916912.dkr.ecr.us-east-1.amazonaws.com/:c27e94500ecdbaea5cb0d6780a5186c558ad38f4
+        # Run the container
+        docker run -d --name my-app -p 443:8000 060795916912.dkr.ecr.us-east-1.amazonaws.com/:c27e94500ecdbaea5cb0d6780a5186c558ad38f4
 
-          EOF
+        EOF
