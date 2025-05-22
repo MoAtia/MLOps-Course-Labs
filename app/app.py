@@ -23,7 +23,7 @@ num_cols = [
 
 # Expected order of features
 all_features = num_cols + cat_cols
-BASE_DIR = Path(__file__).resolve() / "models"
+BASE_DIR = Path(__file__).resolve().parent / "models"
 # Load model and transformer
 try:
     with open(BASE_DIR/"model_production_mlops.pkl", "rb") as f:
