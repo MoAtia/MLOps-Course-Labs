@@ -132,6 +132,8 @@ jobs:
             cd /home/ubuntu/app
 
             # Pull updated images (if using prebuilt image) and deploy
-            # docker-compose pull
-            docker compose -f docker-compose.yml up -d
+            # Deploy
+            docker compose down --remove-orphans || true
+            docker compose pull
+            docker compose up -d
           EOF
