@@ -8,3 +8,4 @@ scipy==1.15.2
 prometheus_client
 prometheus_fastapi_instrumentator
 pytest
+httpx
