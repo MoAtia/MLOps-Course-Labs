@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
 env:
-  AWS_REGION: us-east-1  # Change to your region
+  AWS_REGION: us-east-1
   ECR_REPOSITORY: your-ecr-repo-name
   CONTAINER_NAME: your-container-name
 
