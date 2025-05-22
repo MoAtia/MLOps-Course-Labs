@@ -141,7 +141,7 @@ jobs:
             # docker compose up -d
 
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin 060795916912.dkr.ecr.us-east-1.amazonaws.com
-
+          echo "✅ Logged into ECR"
           # Pull image
           docker pull 060795916912.dkr.ecr.us-east-1.amazonaws.com/:c27e94500ecdbaea5cb0d6780a5186c558ad38f4
 
