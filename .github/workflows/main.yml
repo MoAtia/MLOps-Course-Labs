@@ -62,14 +62,14 @@ jobs:
 
     - name: Login to Amazon ECR
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+      uses:  aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
 
     - name: Build Docker image
-      run: docker build -t ${{ env.IMAGE_NAME }}:${{ env.TAG }} .
+      run: docker build -t ml-model-service:latest .
 
     # - name: Tag and Push to ECR
     #   env:
@@ -83,14 +83,11 @@ jobs:
 
 
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
 
     - name: Push Docker Image to ECR
       run: |
         aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCESS_KEY_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-        docker tag ml-model-service:Atia ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/churn-prediction:Atia
+        docker tag ml-model-service:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/churn-prediction:Atia
         docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/churn-prediction:Atia    
 
     # - name: Build Docker image
