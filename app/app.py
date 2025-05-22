@@ -26,11 +26,11 @@ all_features = num_cols + cat_cols
 BASE_DIR = Path(__file__).resolve() / "models"
 # Load model and transformer
 try:
-    with open("models/model_production_mlops.pkl", "rb") as f:
+    with open(BASE_DIR/"model_production_mlops.pkl", "rb") as f:
         model = joblib.load(f)
     logging.info("Model loaded successfully.")
 
-    with open("models/col_transf.pkl", "rb") as f:
+    with open(BASE_DIR/"col_transf.pkl", "rb") as f:
         transformer = joblib.load(f)
     logging.info("Transformer loaded successfully.")
 except Exception as e:
