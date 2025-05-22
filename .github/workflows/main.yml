@@ -77,10 +77,10 @@ jobs:
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 060795916912.dkr.ecr.us-east-1.amazonaws.com
           echo "✅ Logged into ECR"
 
-          docker pull 060795916912.dkr.ecr.us-east-1.amazonaws.com/:c27e94500ecdbaea5cb0d6780a5186c558ad38f4
+          docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.TAG }}
           echo "✅ Pulled image from ECR"
 
           # docker rm -f my-app || true
 
-          docker run -d --name my-app -p 443:8000 060795916912.dkr.ecr.us-east-1.amazonaws.com/:c27e94500ecdbaea5cb0d6780a5186c558ad38f4
+          docker run -d --name my-app -p 443:8000 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.IMAGE_NAME }}:${{ env.TAG }}
         EOF
