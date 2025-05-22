@@ -133,6 +133,6 @@ jobs:
             cd /home/ubuntu/app
 
             # Pull updated images (if using prebuilt image) and deploy
-            docker-compose pull
-            docker-compose up -d --remove-orphans
+            # docker-compose pull
+            docker compose -f docker-compose.yml up -d
           EOF
