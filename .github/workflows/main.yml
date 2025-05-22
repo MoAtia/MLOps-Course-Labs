@@ -62,33 +62,22 @@ jobs:
 
     - name: Login to Amazon ECR
       id: login-ecr
-      uses:  aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+      uses: aws-actions/amazon-ecr-login@v2
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
 
     - name: Build Docker image
-      run: docker build -t ml-model-service:latest .
+      run: docker build -t ${{ env.IMAGE_NAME }}:${{ env.TAG }} .
 
-    # - name: Tag and Push to ECR
-    #   env:
-    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    #   run: |
-    #     aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCESS_KEY_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
-    #     docker tag $IMAGE_NAME:${{ env.TAG }} $ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}
-    #     docker push $ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}
-    #     echo "ECR_IMAGE=$ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}" >> $GITHUB_ENV
-
-
-
-
-
-    - name: Push Docker Image to ECR
+    - name: Tag and Push to ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCESS_KEY_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-        docker tag ml-model-service:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/churn-prediction:Atia
-        docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/churn-prediction:Atia    
+        docker tag $IMAGE_NAME:${{ env.TAG }} $ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}
+        docker push $ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}
+        echo "ECR_IMAGE=$ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}" >> $GITHUB_ENV
 
     # - name: Build Docker image
     #   uses: docker/build-push-action@v5
@@ -127,8 +116,6 @@ jobs:
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
           chmod 600 ec2_key.pem
-
-
 
       - name: Deploy app to EC2
         env:
