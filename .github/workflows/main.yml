@@ -129,6 +129,7 @@ jobs:
             docker build -pull -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
             # Navigate to your app directory
+            mkdir -p /home/ubuntu/app
             cd /home/ubuntu/app
 
             # Pull updated images (if using prebuilt image) and deploy
