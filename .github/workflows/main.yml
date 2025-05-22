@@ -127,7 +127,7 @@ jobs:
 
             # Pull latest image from ECR
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
-              docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+              docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
 
             # Navigate to your app directory
             cd /home/ubuntu/app
