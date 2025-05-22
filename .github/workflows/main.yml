@@ -5,8 +5,8 @@ on:
     branches: [ main ]
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: your-ecr-repo-name
-  CONTAINER_NAME: your-container-name
+  IMAGE_NAME: churn-prediction
+  TAG: Atia2000  
 
 
 jobs:
@@ -67,16 +67,28 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+
     - name: Build Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        tags: |
-          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
-          ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
-        build-args: |
-          PYTHON_VERSION=3.12
+      run: docker build -t ${{ env.IMAGE_NAME }}:${{ env.TAG }} .
+
+    - name: Tag and Push to ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: |
+        docker tag $IMAGE_NAME:${{ env.TAG }} $ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}
+        docker push $ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}
+        echo "ECR_IMAGE=$ECR_REGISTRY/$IMAGE_NAME:${{ env.TAG }}" >> $GITHUB_ENV
+
+    # - name: Build Docker image
+    #   uses: docker/build-push-action@v5
+    #   with:
+    #     context: .
+    #     push: true
+    #     tags: |
+    #       ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+    #       ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:Atia
+    #     build-args: |
+    #       PYTHON_VERSION=3.12
 
     - name: Output image URI
       run: |
