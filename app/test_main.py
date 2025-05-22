@@ -22,8 +22,8 @@ def test_predict_endpoint():
         "Geography": "France",
         "Gender": "Male"
     }
-
+    
     response = client.post("/predict", json=sample_input)
     assert response.status_code == 200
-    assert "churn_prediction" in response[0].json()
-    assert "churn_probability" in response[0].json()
+    assert "churn_prediction" in response.json()
+    assert "churn_probability" in response.json()

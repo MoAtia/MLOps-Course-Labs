@@ -106,7 +106,7 @@ def predict(data: CustomerData):
         return {
             "churn_prediction": int(prediction[0]),
             "churn_probability": round(prob, 4)
-        }, 200, headers
+        }#, 200, headers
 
     except Exception as e:
         logging.error(f"Prediction error: {e}")
